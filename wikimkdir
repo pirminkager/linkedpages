@@ -5,7 +5,7 @@
 DW='/var/www/html/'
 DWP=${DW}'data/pages/'
 DWT=${DWP}'wiki/template_linked'
-OPTIONSFILENAME='linked_options'
+OPTIONSFILENAME='linked_options.txt'
 OPTIONSLIST="#sidebar\
              #addnewpage"
 
