@@ -3,7 +3,7 @@
 DW="/var/www/html"                               	# path to installation
 DWP="${DW}/data/pages"                    	# path to pages
 DWT="${DWP}/admin/template_linked/"     # path to template
-SCRIPT="/home/$USER/bin/wikimkdir"
+SCRIPT="/home/$USER/bin/linkedpages/wikimkdir"
 INCRONOPT='IN_ALL_EVENTS '"$SCRIPT"' $$ $@ $# $%'
 INCRONTAB="/var/spool/incron/$USER"
 LOGFILE="/home/$USER/logfile"
