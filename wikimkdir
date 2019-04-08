@@ -27,7 +27,7 @@ INCRONOPT='IN_ALL_EVENTS '"$SCRIPT"' $$ $@ $# $%'
 # Log Event to logfile 
 # //**not neccessary**//
 
-echo "$1 $2 $3 $4" >> $INCRONLOG
+#echo "$1 $2 $3 $4" >> $INCRONLOG
 
 
 ###### New Dir Created ######
