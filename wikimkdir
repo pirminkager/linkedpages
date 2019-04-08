@@ -2,15 +2,13 @@
 
 #Variable Definition
 
-DW=/var/www/html/
-DWP=${DW}data/pages/
-DWT=${DWP}admin/template_flex
-FILELIST="nothing"
-OPTIONSFILENAME='template_options'
-OPTIONSLIST="option1=0\
-             option2=0\
-             option3=0\
-             pirmin=123"
+DW='/var/www/html/'
+DWP=${DW}'data/pages/'
+DWT=${DWP}'admin/template_linkedp'
+OPTIONSFILENAME='linkedp_options'
+OPTIONSLIST="#arandomfile\
+             #sidebar\
+             #addnewpage"
 
 INCRONLOG='/home/pirmink/incronlog'
 LOGFILE='/home/pirmink/logfile'
@@ -26,12 +24,15 @@ E_MKDIR='IN_CREATE,IN_ISDIR'
 E_RMDIR='IN_DELETE,IN_ISDIR'
 INCRONOPT='IN_ALL_EVENTS '"$SCRIPT"' $$ $@ $# $%'
 
+
 # Log Event to logfile 
 # //**not neccessary**//
 
 echo "$1 $2 $3 $4" >> $INCRONLOG
 
+
 ###### New Dir Created ######
+
 if [ "$EVENT" = "$E_MKDIR" ]
 then
 ## Write entry into incrontab ##
@@ -39,26 +40,60 @@ echo -n ${DIR}${FILE}'/ ' >> $INCRONTAB
 echo $INCRONOPT >> $INCRONTAB
 echo '$ added   '"$DIR$FILE" >> $LOGFILE
 
+
 ## Create config file and populate with standard options ##
-echo 'option1=1' > "${DIR}${FILE}/${OPTIONSFILENAME}"
-echo 'option2=1' >> "${DIR}${FILE}/${OPTIONSFILENAME}"
-echo 'option3=1' >> "${DIR}${FILE}/${OPTIONSFILENAME}"
+echo '#Exlude filenames by putting the name into this file' > "${DIR}${FILE}/${OPTIONSFILENAME}"
 for option in $OPTIONSLIST
 do
   echo $option >> "${DIR}${FILE}/${OPTIONSFILENAME}"
 done
+
+
 ## Linking ##
 
+FILELIST=`ls $DWT | grep -v /` #List files in template directory and store in FILELIST
+for FILENAME in $FILELIST
+do
+  ln -s "${DWT}/${FILENAME}" "${DIR}${FILE}/"
+done
 fi
 
+
 ###### Dir Removed ######
+
 if [ "$EVENT" = "$E_RMDIR" ]
 then
 ## Delete entry from incrontab ##
 grep -v "${DIR}${FILE}/" "$INCRONTAB" > $INCRONTMP
 cp $INCRONTMP $INCRONTAB
 echo '$ removed '"$DIR$FILE" >> $LOGFILE
-
-## Linking ##
-
 fi
+
+
+###### Update when optionfile is changed ######
+
+if [ "$FILE" = "$OPTIONSFILENAME" ] && [ "$EVENT" = "IN_CLOSE_WRITE" ]
+then
+REM=`ls $DWT | grep -v / | grep -w -F --file="${DIR}${FILE}"`
+ADD=`ls $DWT | grep -v / | grep -w -v -F --file="${DIR}${FILE}"`
+echo "ADD $ADD" >> $LOGFILE
+echo "REM $REM" >> $LOGFILE
+
+
+## Linknewfiles ##
+for FILENAME in $ADD
+do
+  ln -s "${DWT}/${FILENAME}" "${DIR}/${FILENAME}"
+done
+
+
+## Remove files ##
+for FILENAME in $REM
+do
+  rm "${DIR}/${FILENAME}"
+done
+fi
+
+
+###### Update when template directory changes ######
+## to be done ##

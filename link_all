@@ -1,0 +1,12 @@
+#!/bin/sh
+
+wd=/var/www/html/                               	# path to installation
+pd=/var/www/html/data/pages/                    	# path to pages
+td=/var/www/html/data/pages/admin/template_linkedp/     # path to template
+
+filelist=`ls $td`
+
+for filename in $filelist
+do
+  find $pd -type d -exec ln -s $td$filename {} \;
+done
