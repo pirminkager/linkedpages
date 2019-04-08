@@ -1,0 +1,64 @@
+#!/bin/bash
+
+#Variable Definition
+
+DW=/var/www/html/
+DWP=${DW}data/pages/
+DWT=${DWP}admin/template_flex
+FILELIST="nothing"
+OPTIONSFILENAME='template_options'
+OPTIONSLIST="option1=0\
+             option2=0\
+             option3=0\
+             pirmin=123"
+
+INCRONLOG='/home/pirmink/incronlog'
+LOGFILE='/home/pirmink/logfile'
+INCRONTAB='/var/spool/incron/pirmink'
+INCRONTMP='/home/pirmink/bin/tmp'
+SCRIPT='/home/pirmink/bin/wikimkdir'
+DS=$1
+DIR=$2
+FILE=$3
+EVENT=$4
+DF=${DIR}${FILE}'/ '
+E_MKDIR='IN_CREATE,IN_ISDIR'
+E_RMDIR='IN_DELETE,IN_ISDIR'
+INCRONOPT='IN_ALL_EVENTS '"$SCRIPT"' $$ $@ $# $%'
+
+# Log Event to logfile 
+# //**not neccessary**//
+
+echo "$1 $2 $3 $4" >> $INCRONLOG
+
+###### New Dir Created ######
+if [ "$EVENT" = "$E_MKDIR" ]
+then
+## Write entry into incrontab ##
+echo -n ${DIR}${FILE}'/ ' >> $INCRONTAB
+echo $INCRONOPT >> $INCRONTAB
+echo '$ added   '"$DIR$FILE" >> $LOGFILE
+
+## Create config file and populate with standard options ##
+echo 'option1=1' > "${DIR}${FILE}/${OPTIONSFILENAME}"
+echo 'option2=1' >> "${DIR}${FILE}/${OPTIONSFILENAME}"
+echo 'option3=1' >> "${DIR}${FILE}/${OPTIONSFILENAME}"
+for option in $OPTIONSLIST
+do
+  echo $option >> "${DIR}${FILE}/${OPTIONSFILENAME}"
+done
+## Linking ##
+
+fi
+
+###### Dir Removed ######
+if [ "$EVENT" = "$E_RMDIR" ]
+then
+## Delete entry from incrontab ##
+grep -v "${DIR}${FILE}/" "$INCRONTAB" > $INCRONTMP
+cp $INCRONTMP $INCRONTAB
+echo '$ removed '"$DIR$FILE" >> $LOGFILE
+
+## Linking ##
+
+fi
