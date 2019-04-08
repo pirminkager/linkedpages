@@ -1,0 +1,24 @@
+#!/bin/sh
+
+DW="/var/www/html"                               	# path to installation
+DWP="${DW}/data/pages"                    		# path to pages
+DWT="${DWP}/admin/template_linked/"     		# path to template for exclusion
+FILE="linked_options"
+OPTIONSLIST="#sidebar\
+             #addnewpage"
+DIRS=`find "$DWP" -type d | grep -w -v "$DWT"`
+
+for DIR in $DIRS
+do
+LSOUTPUT=`ls $DIR | grep $FILE`
+if [ "$LSOUTPUT" != "$FILE" ]
+then
+echo '#Exlude filenames by putting the name into this file' > "${DIR}/${FILE}"
+for option in $OPTIONSLIST
+do
+echo $option >> "${DIR}/${FILE}"
+done
+fi
+done
+
+

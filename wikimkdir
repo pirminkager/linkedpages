@@ -4,17 +4,16 @@
 
 DW='/var/www/html/'
 DWP=${DW}'data/pages/'
-DWT=${DWP}'admin/template_linkedp'
-OPTIONSFILENAME='linkedp_options'
-OPTIONSLIST="#arandomfile\
-             #sidebar\
+DWT=${DWP}'admin/template_linked'
+OPTIONSFILENAME='linked_options'
+OPTIONSLIST="#sidebar\
              #addnewpage"
 
-INCRONLOG='/home/pirmink/incronlog'
-LOGFILE='/home/pirmink/logfile'
-INCRONTAB='/var/spool/incron/pirmink'
-INCRONTMP='/home/pirmink/bin/tmp'
-SCRIPT='/home/pirmink/bin/wikimkdir'
+INCRONLOG="/home/$USER/incronlog"
+LOGFILE="/home/$USER/logfile"
+INCRONTAB="/var/spool/incron/$USER"
+INCRONTMP="/home/$USER/bin/tmp"
+SCRIPT="/home/$USER/bin/wikimkdir"
 DS=$1
 DIR=$2
 FILE=$3
