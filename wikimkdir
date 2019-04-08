@@ -96,3 +96,8 @@ fi
 
 ###### Update when template directory changes ######
 ## to be done ##
+if [ "$DIR" = "$DWT" ]
+then
+find /var/www/html/data/pages -type f -name 'linked_options.txt' -exec touch {} \;
+#find /var/www/html/data/pages -type f -name 'linked_options.txt' -exec chmod 664 {} \;
+fi
