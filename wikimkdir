@@ -6,8 +6,9 @@ DW='/var/www/html/'
 DWP=${DW}'data/pages/'
 DWT=${DWP}'wiki/template_linked'
 OPTIONSFILENAME='linked_options.txt'
-OPTIONSLIST="#sidebar\
-             #addnewpage"
+OPTIONSLIST="start.txt\
+	     #sidebar.txt\
+             #addnewpage.txt"
 
 INCRONLOG="/home/$USER/incronlog"
 LOGFILE="/home/$USER/logfile"
@@ -27,7 +28,7 @@ INCRONOPT='IN_ALL_EVENTS '"$SCRIPT"' $$ $@ $# $%'
 # Log Event to logfile 
 # //**not neccessary**//
 
-#echo "$1 $2 $3 $4" >> $INCRONLOG
+echo "$1 $2 $3 $4" >> $INCRONLOG
 
 
 ###### New Dir Created ######
@@ -71,10 +72,11 @@ fi
 
 ###### Update when optionfile is changed ######
 
-if [ "$FILE" = "$OPTIONSFILENAME" ] && [ "$EVENT" = "IN_CLOSE_WRITE" ]
+if [[ "$FILE" = "$OPTIONSFILENAME" && "$EVENT" = "IN_MODIFY" ]] || [[ "$FILE" = "$OPTIONSFILENAME" && "$EVENT" = "IN_ATTRIB" ]]
 then
 REM=`ls $DWT | grep -v / | grep -w -F --file="${DIR}${FILE}"`
 ADD=`ls $DWT | grep -v / | grep -w -v -F --file="${DIR}${FILE}"`
+echo "CHANGED OPTIONS $DIR" >> $LOGFILE
 echo "ADD $ADD" >> $LOGFILE
 echo "REM $REM" >> $LOGFILE
 
@@ -89,15 +91,23 @@ done
 ## Remove files ##
 for FILENAME in $REM
 do
-  rm "${DIR}/${FILENAME}"
+  find "${DIR}" -maxdepth 1 -type l -name "${FILENAME}" -exec rm {} \;
 done
 fi
 
 
 ###### Update when template directory changes ######
-## to be done ##
-if [ "$DIR" = "$DWT" ]
+
+if [[ "$DIR" = "${DWT}/" && "$EVENT" = "IN_CREATE" ]]
 then
-find /var/www/html/data/pages -type f -name 'linked_options.txt' -exec touch {} \;
+`find "$DWP" -type f -name "$OPTIONSFILENAME" -exec touch {} \;`
 #find /var/www/html/data/pages -type f -name 'linked_options.txt' -exec chmod 664 {} \;
+echo "TEMPLATE DIR" >> $LOGFILE
 fi
+
+if [[ "$DIR" = "${DWT}/" && "$EVENT" = "IN_DELETE" ]]
+then
+echo "`find "$DWP" -type l -name "$FILE"`"
+`find "$DWP" -type l -name "$FILE" -exec rm {} \;`
+fi
+

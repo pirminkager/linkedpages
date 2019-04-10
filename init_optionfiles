@@ -4,8 +4,9 @@ DW="/var/www/html"                               	# path to installation
 DWP="${DW}/data/pages"                    		# path to pages
 DWT="${DWP}/wiki/template_linked/"     		# path to template for exclusion
 FILE="linked_options.txt"
-OPTIONSLIST="#sidebar\
-             #addnewpage"
+OPTIONSLIST="start.txt\
+	     #sidebar.txt\
+             #addnewpage.txt"
 DIRS=`find "$DWP" -type d | grep -w -v "$DWT"`
 
 for DIR in $DIRS
