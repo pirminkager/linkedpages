@@ -1,4 +1,5 @@
 #!/bin/sh
+# The created incrontab must be moved and the owner changed to the user who then runs the scripts. Can i do that in the script? probably with sudo
 
 DW="/var/www/html"                               	# path to installation
 DWP="${DW}/data/pages"                    	# path to pages

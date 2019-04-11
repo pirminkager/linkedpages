@@ -6,8 +6,7 @@ DW='/var/www/html'
 DWP=${DW}'/data/pages'
 DWT=${DWP}'/wiki/template_linked'
 OPTIONSFILENAME='linked_options.txt'
-OPTIONSLIST="start.txt\
-	     #sidebar.txt\
+OPTIONSLIST="#sidebar.txt\
              #addnewpage.txt\
 	     #navigate.txt"
 
@@ -24,6 +23,7 @@ DF="${DIR}/${FILE}"
 E_MKDIR='IN_CREATE,IN_ISDIR'
 E_RMDIR='IN_DELETE,IN_ISDIR'
 INCRONOPT='IN_ALL_EVENTS '"$SCRIPT"' $$ $@ $# $%'
+START="start.txt"
 
 
 # Log Event to logfile 
@@ -52,7 +52,7 @@ done
 
 ## Linking ##
 
-FILELIST=`ls $DWT | grep -v /` #List files in template directory and store in FILELIST
+FILELIST=`ls $DWT | grep -v / | grep -v "${START}"` #List files in template directory and store in FILELIST
 for FILENAME in $FILELIST
 do
 ln -s "${DWT}/${FILENAME}" "${DF}/"
@@ -75,8 +75,9 @@ fi
 
 if [[ "$FILE" = "$OPTIONSFILENAME" && "$EVENT" = "IN_MODIFY" ]] || [[ "$FILE" = "$OPTIONSFILENAME" && "$EVENT" = "IN_ATTRIB" ]]
 then
-REM=`ls $DWT | grep -v / | grep -w -F --file="${DF}"`
-ADD=`ls $DWT | grep -v / | grep -w -v -F --file="${DF}"`
+REM="$START"
+REM="${REM} "`ls $DWT | grep -v / | grep -w -F --file="${DF}"`
+ADD=`ls $DWT | grep -v / | grep -v "${START}" | grep -w -v -F --file="${DF}"`
 echo "CHANGED OPTIONS $DF" >> $LOGFILE
 echo "ADD $ADD" >> $LOGFILE
 echo "REM $REM" >> $LOGFILE
@@ -85,7 +86,7 @@ echo "REM $REM" >> $LOGFILE
 ## Linknewfiles ##
 for FILENAME in $ADD
 do
-  ln -s "${DWT}/${FILENAME}" "${DF}"
+  ln -s "${DWT}/${FILENAME}" "${DIR}"
 done
 
 
