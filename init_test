@@ -2,27 +2,39 @@
 
 DW="/var/www/html"                               	# path to installation
 DWP="${DW}/data/pages"                    	# path to pages
-DWT="${DWP}/wiki/template_linked/"     # path to template
+DWT="${DWP}/wiki/template_linked"     # path to template
 SCRIPT="/home/$USER/bin/linkedpages/wikimkdir"
 INCRONOPT='IN_ALL_EVENTS '"$SCRIPT"' $$ $@ $# $%'
 INCRONTAB="/var/spool/incron/$USER"
 LOGFILE="/home/$USER/logfile"
-
-IGNORE="${DWP}/wiki/template"
+IGNORE="${DWP}/wiki/template_linked\
+	${DWP}/wiki/playground\
+	${DWP}/wiki/admin"
 
 DIRS=`find "$DWP" -type d`
 
+for DIR in $DIRS
+do
+echo $DIR
+done
+
 for LINE in $IGNORE
 do
+echo "$LINE"
 DIRS=`echo "$DIRS" | grep -w -v "$LINE"`
 done
 
 for DIR in $DIRS
 do
-## Write entry into incrontab ##
-echo -n "${DIR} " >> "$INCRONTAB"
-echo "$INCRONOPT" >> "$INCRONTAB"
-echo '$ added   '"$DIR" >> "$LOGFILE"
+echo "$DIR"
 done
+
+#for DIR in $DIRS
+#do
+## Write entry into incrontab ##
+#echo -n "${DIR}/ " #>> "$INCRONTAB"
+#echo "$INCRONOPT" #>> "$INCRONTAB"
+#echo '$ added   '"$DIR" #>> "$LOGFILE"
+#done
 
 

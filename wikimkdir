@@ -2,13 +2,14 @@
 
 #Variable Definition
 
-DW='/var/www/html/'
-DWP=${DW}'data/pages/'
-DWT=${DWP}'wiki/template_linked'
+DW='/var/www/html'
+DWP=${DW}'/data/pages'
+DWT=${DWP}'/wiki/template_linked'
 OPTIONSFILENAME='linked_options.txt'
 OPTIONSLIST="start.txt\
 	     #sidebar.txt\
-             #addnewpage.txt"
+             #addnewpage.txt\
+	     #navigate.txt"
 
 INCRONLOG="/home/$USER/incronlog"
 LOGFILE="/home/$USER/logfile"
@@ -19,7 +20,7 @@ DS=$1
 DIR=$2
 FILE=$3
 EVENT=$4
-DF=${DIR}${FILE}'/ '
+DF="${DIR}/${FILE}"
 E_MKDIR='IN_CREATE,IN_ISDIR'
 E_RMDIR='IN_DELETE,IN_ISDIR'
 INCRONOPT='IN_ALL_EVENTS '"$SCRIPT"' $$ $@ $# $%'
@@ -36,16 +37,16 @@ echo "$1 $2 $3 $4" >> $INCRONLOG
 if [ "$EVENT" = "$E_MKDIR" ]
 then
 ## Write entry into incrontab ##
-echo -n ${DIR}${FILE}'/ ' >> $INCRONTAB
-echo $INCRONOPT >> $INCRONTAB
-echo '$ added   '"$DIR$FILE" >> $LOGFILE
+echo -n "${DF} " >> $INCRONTAB
+echo "$INCRONOPT" >> $INCRONTAB
+echo '$ added   '"$DF" >> $LOGFILE
 
 
 ## Create config file and populate with standard options ##
-echo '#Exlude filenames by putting the name into this file' > "${DIR}${FILE}/${OPTIONSFILENAME}"
+echo '#Exlude filenames by putting the name into this file' > "${DF}/${OPTIONSFILENAME}"
 for option in $OPTIONSLIST
 do
-  echo $option >> "${DIR}${FILE}/${OPTIONSFILENAME}"
+echo $option >> "${DF}/${OPTIONSFILENAME}"
 done
 
 
@@ -54,7 +55,7 @@ done
 FILELIST=`ls $DWT | grep -v /` #List files in template directory and store in FILELIST
 for FILENAME in $FILELIST
 do
-  ln -s "${DWT}/${FILENAME}" "${DIR}${FILE}/"
+ln -s "${DWT}/${FILENAME}" "${DF}/"
 done
 fi
 
@@ -64,9 +65,9 @@ fi
 if [ "$EVENT" = "$E_RMDIR" ]
 then
 ## Delete entry from incrontab ##
-grep -v "${DIR}${FILE}/" "$INCRONTAB" > $INCRONTMP
-cp $INCRONTMP $INCRONTAB
-echo '$ removed '"$DIR$FILE" >> $LOGFILE
+grep -v "${DF} " "$INCRONTAB" > $INCRONTMP
+cp "$INCRONTMP" "$INCRONTAB"
+echo '$ removed '"$DF" >> $LOGFILE
 fi
 
 
@@ -74,9 +75,9 @@ fi
 
 if [[ "$FILE" = "$OPTIONSFILENAME" && "$EVENT" = "IN_MODIFY" ]] || [[ "$FILE" = "$OPTIONSFILENAME" && "$EVENT" = "IN_ATTRIB" ]]
 then
-REM=`ls $DWT | grep -v / | grep -w -F --file="${DIR}${FILE}"`
-ADD=`ls $DWT | grep -v / | grep -w -v -F --file="${DIR}${FILE}"`
-echo "CHANGED OPTIONS $DIR" >> $LOGFILE
+REM=`ls $DWT | grep -v / | grep -w -F --file="${DF}"`
+ADD=`ls $DWT | grep -v / | grep -w -v -F --file="${DF}"`
+echo "CHANGED OPTIONS $DF" >> $LOGFILE
 echo "ADD $ADD" >> $LOGFILE
 echo "REM $REM" >> $LOGFILE
 
@@ -84,7 +85,7 @@ echo "REM $REM" >> $LOGFILE
 ## Linknewfiles ##
 for FILENAME in $ADD
 do
-  ln -s "${DWT}/${FILENAME}" "${DIR}/${FILENAME}"
+  ln -s "${DWT}/${FILENAME}" "${DF}"
 done
 
 
@@ -98,16 +99,17 @@ fi
 
 ###### Update when template directory changes ######
 
-if [[ "$DIR" = "${DWT}/" && "$EVENT" = "IN_CREATE" ]]
+if [[ "$DIR" = "${DWT}" && "$EVENT" = "IN_CREATE" ]]
 then
 `find "$DWP" -type f -name "$OPTIONSFILENAME" -exec touch {} \;`
 #find /var/www/html/data/pages -type f -name 'linked_options.txt' -exec chmod 664 {} \;
-echo "TEMPLATE DIR" >> $LOGFILE
+echo "TEMPLATE DIR changed $FILE added" >> $LOGFILE
 fi
 
-if [[ "$DIR" = "${DWT}/" && "$EVENT" = "IN_DELETE" ]]
+if [[ "$DIR" = "${DWT}" && "$EVENT" = "IN_DELETE" ]]
 then
 echo "`find "$DWP" -type l -name "$FILE"`"
 `find "$DWP" -type l -name "$FILE" -exec rm {} \;`
+echo "TEMPLATE DIR changed $FILE removed" >> $LOGFILE
 fi
 
